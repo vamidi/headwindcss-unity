@@ -1,0 +1,32 @@
+{
+  "name": "com.vamidicreations.headwindcss",
+  "version": "0.0.1-preview",
+  "displayName": "HeadwindCSS",
+  "documentationUrl": "https://docs.vamidicreations.nl/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "unity": "2020.3",
+  "unityRelease": "25f1",
+  "dependencies": {},
+  "keywords": [
+    "UXML",
+    "USS",
+    "Styling",
+    "SCSS",
+    "CSS",
+    "RPG"
+  ],
+  "author": {
+    "name": "Valencio Hoffman",
+    "email": "valencio.hoffman@gmail.com",
+    "url": "https://storytime.vamidicreations.nl/"
+  },
+  "samples": [
+    {
+      "displayName": "Item Manager",
+      "description": "Item manager with a simple UI windows and interactions.",
+      "path": "Samples~/Item Management/Item manager"
+    }
+  ],
+  "type": "tool"
+}

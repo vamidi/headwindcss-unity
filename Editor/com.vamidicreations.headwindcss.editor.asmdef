@@ -1,0 +1,17 @@
+{
+    "name": "com.vamidicreations.headwindcss.editor",
+    "rootNamespace": "HeadWindCSS",
+    "references": [
+        "GUID:6f529fef733784703bbac12e618ec2c9",
+        "GUID:69448af7b92c7f342b298e06a37122aa"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
