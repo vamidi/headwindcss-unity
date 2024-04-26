@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace HeadWindCSS.Domains.Settings.ScriptableObjects
@@ -12,6 +13,14 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
         public const string CONFIG_NAME = "com.vamidicreations.headwindcss.settings";
         
         public const string ButtonVariant = "buttonVariants";
+
+        public ReadOnlyDictionary<string, ClassVariant> Variants => new(variants);
+        
+        private static HeadWindCssSettings _instance;
+        
+        [SerializeField]
+        private SerializableDictionary<string, string> variantss = new();
+
         
         [SerializeField, Tooltip("Variants")] 
         private SerializableDictionary<string, ClassVariant> variants = new()
@@ -25,7 +34,7 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
                             "variant", new SerializableDictionary<string, string>
                             {
                                 { "default", "text-primary-500" },
-                                { "primary", "text-white" }, // bg-indigo-600 
+                                { "primary", "bg-indigo-600 text-white" }, 
                             }
                         },
                         {
@@ -38,8 +47,19 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
                     }}
             }
         };
+        
+        public static HeadWindCssSettings Load()
+        {
+            if (_instance) return _instance;
+#if UNITY_EDITOR
+            UnityEditor.EditorBuildSettings.TryGetConfigObject(CONFIG_NAME, out _instance);
+#else
+            // Loads from the memory.
+            instance = FindObjectOfType<SceneLoaderSettings>();
+#endif
+            return _instance;
+        }
 
         private List<string> _dynamicValues = new();
-
     }
 }

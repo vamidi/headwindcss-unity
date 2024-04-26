@@ -7,6 +7,8 @@ namespace HeadWindCSS.Domains.UI.Elements
     using Extensions.UI.Elements;
     public class Button: UnityEngine.UIElements.Button
     {
+        public string Variant { get; set; }
+        
         // private static readonly CustomStyleProperty<string> m_ColorPrimary900 = new CustomStyleProperty<string>("--test");
 
         // public Button()
@@ -28,27 +30,24 @@ namespace HeadWindCSS.Domains.UI.Elements
 
         public new class UxmlTraits : UnityEngine.UIElements.Button.UxmlTraits
         {
-            protected readonly UxmlStringAttributeDescription StatusAttr = new (){ name = "variant", defaultValue = "primary" };
-            protected readonly UxmlStringAttributeDescription SizeAttr = new (){ name = "size", defaultValue = "md" };
+            protected readonly UxmlStringAttributeDescription StatusAttr = new (){ name = "variant", defaultValue = "" };
+            protected readonly UxmlStringAttributeDescription SizeAttr = new (){ name = "size", defaultValue = "" };
             protected readonly UxmlStringAttributeDescription ClassAttr = new (){ name = "class" };
             
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
             {
                 base.Init(ve, bag, cc);
-                
-                // ve.AddVariantClasses(ClassVarianceAuthority.ButtonVariant, StatusAttr, bag, cc);
-                // ve.AddVariantClasses(ClassVarianceAuthority.ButtonVariant, SizeAttr, bag, cc);
-                ve.AddVariantClasses(ClassVarianceAuthority.ButtonVariant, ClassAttr, bag, cc);
 
-                var btn = ve as UnityEngine.UIElements.Button;
-
-                if (btn == null)
+                if (ve is Button btn)
                 {
-                    return;
+                    btn.text = "Button";
+                    btn.Variant = StatusAttr.GetValueFromBag(bag, cc);
                 }
                 
-                btn.text = "Button";
-                
+                ve.AddVariantClasses(ClassVarianceAuthority.ButtonVariant, StatusAttr, bag, cc);
+                ve.AddVariantClasses(ClassVarianceAuthority.ButtonVariant, SizeAttr, bag, cc);
+                ve.AddVariantClasses(ClassVarianceAuthority.ButtonVariant, ClassAttr, bag, cc);
+
             }
         }
     }

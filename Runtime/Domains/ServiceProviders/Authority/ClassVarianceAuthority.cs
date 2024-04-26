@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using HeadWindCSS.Domains.Serialization;
+using HeadWindCSS.Domains.Settings.ScriptableObjects;
+using UnityEngine;
 
 
 namespace HeadWindCSS.Domains.ServiceProviders.Authority
@@ -37,8 +39,6 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
         public SerializableDictionary<Variant, 
             SerializableDictionary<string, string>> variants = new();
         
-        
-        
         /// <summary>
         /// Component variants are sets that define the visual style of a component
         /// for example if the visual element has a type of primary and a size of md do certain things
@@ -64,41 +64,46 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
     public class ClassVarianceAuthority : IService
     {
         public const string ButtonVariant = "buttonVariants";
+
+        private readonly HeadWindCssSettings _headWindCssSettings = HeadWindCssSettings.Load();
         
-        // TODO replace with config
-        private SerializableDictionary<Variant, ClassVariant> _variants = new()
-        {
-            { // Buttons
-                ButtonVariant, new ClassVariant {
-                baseClasses = "font-bold rounded-lg",
-                variants = new ()
-                {
-                    {
-                        "variant", new SerializableDictionary<string, string>
-                        {
-                            { "default", "text-primary-500" },
-                            { "primary", "text-white" }, // bg-indigo-600 
-                        }
-                    },
-                    {
-                        "size", new SerializableDictionary<string, string>()
-                        {
-                            { "sm", "h-8" },
-                            { "md", "h-10" }
-                        }
-                    }
-                }}
-            }
-        };
+        // private readonly SerializableDictionary<Variant, ClassVariant> _variants = new()
+        // {
+        //     { // Buttons
+        //         ButtonVariant, new ClassVariant {
+        //         baseClasses = "font-bold rounded-lg",
+        //         variants = new ()
+        //         {
+        //             {
+        //                 "variant", new SerializableDictionary<string, string>
+        //                 {
+        //                     { "default", "text-primary-500" },
+        //                     { "primary", "bg-indigo-600 text-white" },
+        //                 }
+        //             },
+        //             {
+        //                 "size", new SerializableDictionary<string, string>()
+        //                 {
+        //                     { "sm", "h-8" },
+        //                     { "md", "h-10" }
+        //                 }
+        //             }
+        //         }}
+        //     }
+        // };
 
         public string GetVariant(Variant typeVariant, Variant variant, Variant valueVariant)
         {
-            if (_variants.TryGetValue(typeVariant, out var type))
+            Debug.Log($"type {typeVariant}");
+            if (_headWindCssSettings.Variants.TryGetValue(typeVariant, out var type))
             {
                 string classes = type.baseClasses;
                 
+                Debug.Log($"variant {variant}");
+                
                 if (type.variants.TryGetValue(variant, out var variantConfig))
                 {
+                    Debug.Log(variantConfig);
                     if (variantConfig.TryGetValue(valueVariant, out var variantClasses))
                     {
                         classes += " " + variantClasses;
@@ -123,7 +128,7 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
         /// </summary>
         public void Cva(Variant variant, VariantConfig config)
         {
-            if(!_variants.TryAdd(variant, config))
+            if(!_headWindCssSettings.Variants.TryAdd(variant, config))
             {
                 throw new Exception("Variant already exists");
             }

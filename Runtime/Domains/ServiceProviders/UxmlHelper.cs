@@ -70,8 +70,6 @@ namespace HeadWindCSS.Domains.ServiceProviders
             string styleSheet = "";
             foreach (Match match in matches)
             {
-                Debug.Log($"match: {match.Value}");
-                
                 // Get prefix and value
                 string matchPrefix = match.Value.Substring(0, match.Value.IndexOf("-", StringComparison.Ordinal));
                 string matchPropValue = match.Value.Substring(match.Value.IndexOf("-", StringComparison.Ordinal) + 1);

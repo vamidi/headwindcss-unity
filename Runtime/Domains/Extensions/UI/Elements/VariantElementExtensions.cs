@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using HeadWindCSS.Domains.Settings.ScriptableObjects;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -59,7 +60,6 @@ namespace HeadWindCSS.Domains.Extensions.UI.Elements
 
             if (attribute.name == "class")
             {
-                Debug.Log($"here {attribute.name}");
                 AssignDynamicProperties(ve, attribute.GetValueFromBag(bag, cc));
             }
             
