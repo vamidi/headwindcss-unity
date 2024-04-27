@@ -1,5 +1,4 @@
 using HeadWindCSS.Domains.ServiceProviders.Authority;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace HeadWindCSS.Domains.UI.Elements

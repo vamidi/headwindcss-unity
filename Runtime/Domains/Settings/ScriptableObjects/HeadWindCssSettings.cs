@@ -7,6 +7,8 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
     using Serialization;
     using ServiceProviders.Authority;
     
+    using ThemeSetting = Serialization.SerializableDictionary<string, string>;
+    
     [CreateAssetMenu(fileName = "HeadWindCssSettings", menuName = "HeadWindCSS/Settings/HeadWindCSS settings", order = 1)]
     public class HeadWindCssSettings : ScriptableObject
     {
@@ -18,14 +20,10 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
         
         private static HeadWindCssSettings _instance;
         
-        [SerializeField]
-        private SerializableDictionary<string, string> variantss = new();
-
-        
         [SerializeField, Tooltip("Variants")] 
         private SerializableDictionary<string, ClassVariant> variants = new()
         {
-            { // Buttons
+            { // Example for Buttons
                 ButtonVariant, new ClassVariant {
                     baseClasses = "font-bold rounded-lg",
                     variants = new ()
@@ -44,7 +42,39 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
                                 { "md", "h-10" }
                             }
                         }
-                    }}
+                    }
+                }
+            }
+        };
+        
+        [SerializeField, Tooltip("Theme settings")]
+        private SerializableDictionary<string, ThemeSetting> theme = new()
+        {
+            { "colors", new ThemeSetting()
+                {
+                    { "primary", "#1fb6ff" },
+                }
+            },
+            {
+                "fontFamily", new SerializableDictionary<string, string>
+                {
+                    { "sans", "Graphik, sans-serif" },
+                    { "serif", "Merriweather, serif" }
+                }  
+            },
+            {
+                "extend", new ThemeSetting()
+                {
+                    // spacing = new SerializableDictionary<string, string>
+                    // {
+                    //     { "8xl", "96rem" },
+                    //     { "9xl", "128rem" }
+                    // },
+                    // borderRadius = new SerializableDictionary<string, string>
+                    // {
+                    //     { "4xl", "2rem" }
+                    // }
+                }
             }
         };
         
@@ -61,5 +91,10 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
         }
 
         private List<string> _dynamicValues = new();
+        
+        private void AddDynamicValue(string value)
+        {
+            _dynamicValues.Add(value);
+        }
     }
 }

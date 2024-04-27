@@ -94,16 +94,12 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
 
         public string GetVariant(Variant typeVariant, Variant variant, Variant valueVariant)
         {
-            Debug.Log($"type {typeVariant}");
             if (_headWindCssSettings.Variants.TryGetValue(typeVariant, out var type))
             {
                 string classes = type.baseClasses;
                 
-                Debug.Log($"variant {variant}");
-                
                 if (type.variants.TryGetValue(variant, out var variantConfig))
                 {
-                    Debug.Log(variantConfig);
                     if (variantConfig.TryGetValue(valueVariant, out var variantClasses))
                     {
                         classes += " " + variantClasses;

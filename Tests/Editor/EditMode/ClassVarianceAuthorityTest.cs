@@ -1,6 +1,7 @@
 
 using System;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace HeadWindCSS.Tests.Editor.EditMode
 {
@@ -9,19 +10,18 @@ namespace HeadWindCSS.Tests.Editor.EditMode
 
     public class ClassVarianceAuthorityTest
     {
-        protected ClassVarianceAuthority Authority;
+        private ClassVarianceAuthority _authority;
 
         [SetUp]
         public void Setup()
         {
-            Authority = new ClassVarianceAuthority();
+            _authority = new ClassVarianceAuthority();
         }
 
         [Test]
-        public void TestAddVariantClasses()
+        public void AlreadyAddedTest()
         {
-            // TODO move to setup
-            Assert.Throws<Exception>(() => Authority.Cva(ClassVarianceAuthority.ButtonVariant, new ClassVariant
+            Assert.Throws<Exception>(() => _authority.Cva(ClassVarianceAuthority.ButtonVariant, new ClassVariant
             {
                 baseClasses = "font-bold rounded-lg",
                 variants = new()
@@ -42,13 +42,34 @@ namespace HeadWindCSS.Tests.Editor.EditMode
                     }
                 }
             }));
-            
-            Authority.GetVariant(
+        }
+
+        [Test]
+        public void TestAddVariantClasses()
+        {
+            var properties = _authority.GetVariant(
                 typeVariant: ClassVarianceAuthority.ButtonVariant,
                 variant: "variant",
-                valueVariant: "default"
+                valueVariant: "primary"
             );
-            // Assert.AreEqual("font-bold rounded-lg bg-indigo-600 text-white", classes);
+            
+            Debug.Log(properties);
+            
+            Assert.AreEqual("font-bold rounded-lg bg-indigo-600 text-white", properties);
+        }
+        
+        [Test]
+        public void TestAddVariantWithSize()
+        {
+            var properties = _authority.GetVariant(
+                typeVariant: ClassVarianceAuthority.ButtonVariant,
+                variant: "size",
+                valueVariant: "md"
+            );
+            
+            Debug.Log(properties);
+            
+            Assert.AreEqual("font-bold rounded-lg h-10", properties);
         }
     }
 }

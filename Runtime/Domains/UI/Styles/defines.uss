@@ -584,6 +584,13 @@
 
     /** Width & Height */
     --h-10: 40px; /* 40px */
+    
+    /* Height */
+    --h-full: 100%;
+    
+    /* Margins */
+    --m-5: 20px; /* 20px */
+    --m-10: 40px; /* 40px */
 
     /* Font changes */
     /* -unity-font-style: normal | italic | bold | bold-and-italic */
@@ -603,4 +610,10 @@
     --rounded-3xl: 24px; /* 24px */
     --rounded-full: 9999px;
     --rounded-s-none: 0px;
+
+    /** Flex */
+    --flex-1: 1 1 0%;
+    --flex-auto: 1 1 auto;
+    --flex-initial: 0 1 auto;
+    --flex-none: none;
 }

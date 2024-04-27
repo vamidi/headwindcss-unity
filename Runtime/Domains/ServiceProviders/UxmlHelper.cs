@@ -105,6 +105,8 @@ namespace HeadWindCSS.Domains.ServiceProviders
             Debug.Log($"parsedProperties: {parsedProperties}, styleSheet: {styleSheet}");
             
             await SaveParsedProperties(styleSheet);
+            
+            // TODO Add dynamic values to the settings
 
             return parsedProperties.Trim().Split(" ");
         }
