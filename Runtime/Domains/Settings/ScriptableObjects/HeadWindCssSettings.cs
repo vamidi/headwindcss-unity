@@ -1,13 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace HeadWindCSS.Domains.Settings.ScriptableObjects
 {
+    using Theme;
     using Serialization;
     using ServiceProviders.Authority;
-    
-    using ThemeSetting = Serialization.SerializableDictionary<string, string>;
     
     [CreateAssetMenu(fileName = "HeadWindCssSettings", menuName = "HeadWindCSS/Settings/HeadWindCSS settings", order = 1)]
     public class HeadWindCssSettings : ScriptableObject
@@ -16,54 +16,49 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
         
         public const string ButtonVariant = "buttonVariants";
 
-        public ReadOnlyDictionary<string, ClassVariant> Variants => new(variants);
+        internal SerializableDictionary<string, ClassVariant> Variants => variants;
+
+        internal SerializableDictionary<string, SerializableDictionary<string, ThemeSetting>> Theme => theme;
+        
+        internal SerializableDictionary<string, string> DynamicProperties => dynamicValues;
         
         private static HeadWindCssSettings _instance;
         
         [SerializeField, Tooltip("Variants")] 
-        private SerializableDictionary<string, ClassVariant> variants = new()
-        {
-            { // Example for Buttons
-                ButtonVariant, new ClassVariant {
-                    baseClasses = "font-bold rounded-lg",
-                    variants = new ()
-                    {
-                        {
-                            "variant", new SerializableDictionary<string, string>
-                            {
-                                { "default", "text-primary-500" },
-                                { "primary", "bg-indigo-600 text-white" }, 
-                            }
-                        },
-                        {
-                            "size", new SerializableDictionary<string, string>()
-                            {
-                                { "sm", "h-8" },
-                                { "md", "h-10" }
-                            }
-                        }
-                    }
-                }
-            }
-        };
+        private SerializableDictionary<string, ClassVariant> variants = new();
         
         [SerializeField, Tooltip("Theme settings")]
-        private SerializableDictionary<string, ThemeSetting> theme = new()
+        private SerializableDictionary<string, SerializableDictionary<string, ThemeSetting>> theme = new()
         {
-            { "colors", new ThemeSetting()
+            { "colors", new ()
                 {
-                    { "primary", "#1fb6ff" },
+                    // Persona3R style primary color (for testing purposes)
+                    { "primary", new ThemeSetting(
+                        type: ThemeSettingType.Value,
+                        key: "primary",
+                        value: "#181c52"                        
+                    )},
+                    { "secondary", new ThemeSetting(
+                        ThemeSettingType.Value,
+                        key: "secondary",
+                        value: "#0756f1"
+                    )}, 
+                    { "alternate", new ThemeSetting(
+                        ThemeSettingType.Value,
+                        key: "alternate",
+                        value: "#ffffff"
+                    )},
                 }
             },
             {
-                "fontFamily", new SerializableDictionary<string, string>
+                "fontFamily", new SerializableDictionary<string, ThemeSetting>
                 {
-                    { "sans", "Graphik, sans-serif" },
-                    { "serif", "Merriweather, serif" }
+                    // { "sans", "Graphik, sans-serif" },
+                    // { "serif", "Merriweather, serif" }
                 }  
             },
             {
-                "extend", new ThemeSetting()
+                "extend", new SerializableDictionary<string, ThemeSetting>()
                 {
                     // spacing = new SerializableDictionary<string, string>
                     // {
@@ -73,7 +68,7 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
                     // borderRadius = new SerializableDictionary<string, string>
                     // {
                     //     { "4xl", "2rem" }
-                    // }
+                    // }    
                 }
             }
         };
@@ -90,11 +85,21 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
             return _instance;
         }
 
-        private List<string> _dynamicValues = new();
+        private bool _dirty;
         
-        private void AddDynamicValue(string value)
+        [SerializeField]
+        private SerializableDictionary<string, string> dynamicValues = new();
+        
+        internal void AddDynamicValue(string key, string value)
         {
-            _dynamicValues.Add(value);
+            if (dynamicValues.ContainsKey(key))
+            {
+                return;
+            }
+            
+            dynamicValues.Add(key, value);
+            _dirty = true;
         }
+        
     }
 }

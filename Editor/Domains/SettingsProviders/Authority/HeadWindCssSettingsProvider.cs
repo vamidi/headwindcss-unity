@@ -1,9 +1,12 @@
+using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
 {
+    using HeadWindCSS.Domains.IO;
     using HeadWindCSS.Domains.Settings.ScriptableObjects;
 
     public class HeadWindCssSettingsProvider: SettingsProvider
@@ -48,6 +51,11 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
             label = "HeadWindCSS";
             // CurrentSettings = FindSceneLoaderSettings();
             keywords = GetSearchKeywordsFromGUIContentProperties<HeadWindCssSettings>();
+
+            if (!DynamicUSSExists())
+            {
+                SaveParsedProperties("");
+            }
             
             // activateHandler is called when the user clicks on the Settings item in the Settings window.
             // activateHandler = (_, rootElement) =>
@@ -110,7 +118,7 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
             DrawCurrentSettingsGUI();
             EditorGUILayout.Space();
  
-            var invalidSettings = CurrentSettings == null;
+            var invalidSettings = CurrentSettings== null;
             if (invalidSettings) DisplaySettingsCreationGUI();
             else base.OnGUI(searchContext);
         }
@@ -145,6 +153,18 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
             const string message = "This is the current Scene Loader Settings and " +
                                    "it will be automatically included into any builds.";
             EditorGUILayout.HelpBox(message, MessageType.Info, wide: true);
+            
+            if (GUILayout.Button("Paese dynamic values"))
+            {
+                var stylesheet = "";
+
+                foreach (var dynamicProperty in CurrentSettings.DynamicProperties)
+                {
+                    stylesheet += dynamicProperty.Value + System.Environment.NewLine;
+                }
+                
+                SaveParsedProperties(stylesheet);
+            }
         }
         
         private void DisplaySettingsCreationGUI()
@@ -156,6 +176,31 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
             {
                 CurrentSettings = SaveSceneLoaderAsset();
             }
+        }
+        
+        private bool DynamicUSSExists()
+        {
+            return File.Exists(SettingsHelper.USSPath);
+        }
+        
+        /// <summary>
+        /// Save the parsed properties to the file
+        /// </summary>
+        /// <param name="properties"></param>
+        private Task SaveParsedProperties(string properties)
+        {
+            if (!Directory.Exists(SettingsHelper.USSFolderPath))
+            {
+                Directory.CreateDirectory(SettingsHelper.USSFolderPath);
+            }
+
+            if (!File.Exists(SettingsHelper.USSPath))
+            {
+                ResourceHelper.CreateAsset<StyleSheet>(SettingsHelper.USSPath);
+            }
+
+            return File.WriteAllTextAsync(SettingsHelper.USSPath, properties);
+            // File.WriteAllText(USSPath, properties);
         }
     }
 }

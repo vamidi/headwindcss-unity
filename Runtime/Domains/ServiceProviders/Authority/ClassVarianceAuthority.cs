@@ -4,7 +4,6 @@ using HeadWindCSS.Domains.Serialization;
 using HeadWindCSS.Domains.Settings.ScriptableObjects;
 using UnityEngine;
 
-
 namespace HeadWindCSS.Domains.ServiceProviders.Authority
 {
     using Variant = String;
@@ -63,9 +62,22 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
      */
     public class ClassVarianceAuthority : IService
     {
-        public const string ButtonVariant = "buttonVariants";
+        private HeadWindCssSettings _headWindCssSettings;
+        
+        public ClassVarianceAuthority()
+        {
+            Initialize();
+        }
 
-        private readonly HeadWindCssSettings _headWindCssSettings = HeadWindCssSettings.Load();
+        protected void Initialize()
+        {
+            _headWindCssSettings = GetHeadWindCssSettings();
+        }
+        
+        internal virtual HeadWindCssSettings GetHeadWindCssSettings()
+        {
+            return HeadWindCssSettings.Load();
+        }
         
         // private readonly SerializableDictionary<Variant, ClassVariant> _variants = new()
         // {

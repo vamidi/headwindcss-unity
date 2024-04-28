@@ -10,6 +10,8 @@ namespace HeadWindCSS.Tests.Editor.EditMode
 
     public class ClassVarianceAuthorityTest
     {
+        public const string ButtonVariant = "buttonVariants";
+
         private ClassVarianceAuthority _authority;
 
         [SetUp]
@@ -21,7 +23,7 @@ namespace HeadWindCSS.Tests.Editor.EditMode
         [Test]
         public void AlreadyAddedTest()
         {
-            Assert.Throws<Exception>(() => _authority.Cva(ClassVarianceAuthority.ButtonVariant, new ClassVariant
+            Assert.Throws<Exception>(() => _authority.Cva(ButtonVariant, new ClassVariant
             {
                 baseClasses = "font-bold rounded-lg",
                 variants = new()
@@ -48,21 +50,27 @@ namespace HeadWindCSS.Tests.Editor.EditMode
         public void TestAddVariantClasses()
         {
             var properties = _authority.GetVariant(
-                typeVariant: ClassVarianceAuthority.ButtonVariant,
+                typeVariant: ButtonVariant,
                 variant: "variant",
                 valueVariant: "primary"
             );
             
-            Debug.Log(properties);
-            
             Assert.AreEqual("font-bold rounded-lg bg-indigo-600 text-white", properties);
+            
+            properties = _authority.GetVariant(
+                typeVariant: ButtonVariant,
+                variant: "variant",
+                valueVariant: "secondary"
+            );
+            
+            Assert.AreEqual("font-bold rounded-lg bg-red-600 text-white", properties);
         }
         
         [Test]
         public void TestAddVariantWithSize()
         {
             var properties = _authority.GetVariant(
-                typeVariant: ClassVarianceAuthority.ButtonVariant,
+                typeVariant: ButtonVariant,
                 variant: "size",
                 valueVariant: "md"
             );

@@ -2,7 +2,6 @@
     "name": "com.vamidicreations.headwindcss.editor.tests",
     "rootNamespace": "HeadWindCSS",
     "references": [
-        "GUID:3e05805c4a4cb495fa2022bb940204bb",
         "GUID:6f529fef733784703bbac12e618ec2c9",
         "GUID:0acc523941302664db1f4e527237feb3",
         "GUID:27619889b8ba8c24980f49ee34dbb44a"
@@ -14,7 +13,9 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "Castle.Core.dll",
+        "Moq.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

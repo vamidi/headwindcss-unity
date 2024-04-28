@@ -7,6 +7,11 @@ namespace HeadWindCSS.Domains.IO
 {
     internal static class SettingsHelper
     {
+        internal static readonly string USSFolderPath = $"{Application.dataPath}/Settings/HeadWindCSS";
+        internal static readonly string USSPath = $"{USSFolderPath}/{HeadWindDynamicCssFileName}.uss";
+
+        internal const string HeadWindDynamicCssFileName = "dynamic";
+        
         // C:/MyWork/UnityProject/ProjectSettings
         internal static readonly string SettingsFolder = Path.GetFullPath(Path.Combine(Application.dataPath, "../ProjectSettings"));
         
