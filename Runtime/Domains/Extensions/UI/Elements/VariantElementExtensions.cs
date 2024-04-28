@@ -100,11 +100,11 @@ namespace HeadWindCSS.Domains.Extensions.UI.Elements
             }
         }
 
-        private static async void AssignDynamicProperties(VisualElement ve, string properties)
+        private static void AssignDynamicProperties(VisualElement ve, string properties)
         {
             var uxmlHelper = ServiceLocator.Current.Get<UxmlHelper>();
                 
-            var dynamicProperties = await uxmlHelper.ParseClassProperties(properties);
+            var dynamicProperties = uxmlHelper.ParseClassProperties(properties);
             foreach (var prop in dynamicProperties)
             {
                 ve.AddToClassList(prop);

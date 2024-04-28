@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using HeadWindCSS.Domains.Extensions.UI.Elements;
 using UnityEngine;
 
 namespace HeadWindCSS.Domains.Settings.ScriptableObjects
@@ -14,8 +12,6 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
     {
         public const string CONFIG_NAME = "com.vamidicreations.headwindcss.settings";
         
-        public const string ButtonVariant = "buttonVariants";
-
         internal SerializableDictionary<string, ClassVariant> Variants => variants;
 
         internal SerializableDictionary<string, SerializableDictionary<string, ThemeSetting>> Theme => theme;
@@ -36,17 +32,17 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
                     { "primary", new ThemeSetting(
                         type: ThemeSettingType.Value,
                         key: "primary",
-                        value: "#181c52"                        
+                        value: ColorHelper.ParseHtmlColor("#181c52")                   
                     )},
                     { "secondary", new ThemeSetting(
                         ThemeSettingType.Value,
                         key: "secondary",
-                        value: "#0756f1"
+                        value: ColorHelper.ParseHtmlColor("#0756f1")
                     )}, 
                     { "alternate", new ThemeSetting(
                         ThemeSettingType.Value,
                         key: "alternate",
-                        value: "#ffffff"
+                        value: Color.white
                     )},
                 }
             },

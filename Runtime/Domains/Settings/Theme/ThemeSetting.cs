@@ -30,13 +30,13 @@ namespace HeadWindCSS.Domains.Settings.Theme
     {
         public ThemeSettingType Type => type;
         public string Key => key;
-        public string Value => value;
+        public Color Value => value;
         
         [SerializeField] private ThemeSettingType type;
         [SerializeField] private string key;
-        [SerializeField] private string value;
+        [SerializeField] private Color value;
         
-        public ThemeSetting(ThemeSettingType type, string key, string value)
+        public ThemeSetting(ThemeSettingType type, string key, Color value)
         {
             this.type = type;
             this.key = key;
@@ -47,12 +47,13 @@ namespace HeadWindCSS.Domains.Settings.Theme
     [Serializable]
     public class ThemeSettingObject : ThemeSetting
     {
-        public new SerializableDictionary<string, string> Value => value;
+        public new SerializableDictionary<string, Color> Value => value;
         
         [SerializeField]
-        private SerializableDictionary<string, string> value;
+        private SerializableDictionary<string, Color> value;
         
-        public ThemeSettingObject(ThemeSettingType type, string key, SerializableDictionary<string, string> value) : base(type, key, "")
+        public ThemeSettingObject(
+            ThemeSettingType type, string key, SerializableDictionary<string, Color> value) : base(type, key, Color.clear)
         {
             this.value = value;
         }

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using HeadWindCSS.Domains.Extensions.UI.Elements;
 using Moq;
 using NUnit.Framework;
 using UnityEngine;
@@ -26,7 +26,7 @@ namespace HeadWindCSS.Tests.Editor.EditMode
                     key: "example",
                     value: new()
                     {
-                        { "900", "#181c52" }
+                        { "900", ColorHelper.ParseHtmlColor("#181c52") }
                     }
                 ));
             }
@@ -61,16 +61,16 @@ namespace HeadWindCSS.Tests.Editor.EditMode
         }
 
         [Test]
-        public async Task ParseDynamicColors()
+        public void ParseDynamicColors()
         {
-            var pair = await _uxmlHelper.Object.ParseDynamicColors("bg-primary text-secondary text-example-900");
+            var pair = _uxmlHelper.Object.ParseDynamicColors("bg-primary text-secondary text-example-900");
 
             // Test the class names
             Assert.AreEqual("bg-primary text-secondary text-example-900", pair.Key);
 
             // Test the actual stylesheet
             Assert.AreEqual(
-                ".primary{background-color: #181c52;} .secondary{color: #0756f1;} .text-example-900{color: #181c52;}", 
+                ".bg-primary{background-color: #181C52;} .text-secondary{color: #0756F1;} .text-example-900{color: #181C52;}", 
                 pair.Value
             );
         }

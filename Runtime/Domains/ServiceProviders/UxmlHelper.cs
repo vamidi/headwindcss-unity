@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using HeadWindCSS.Domains.Extensions.UI.Elements;
 using HeadWindCSS.Domains.Serialization;
 using HeadWindCSS.Domains.Settings.ScriptableObjects;
 using HeadWindCSS.Domains.Settings.Theme;
@@ -71,16 +71,16 @@ namespace HeadWindCSS.Domains.ServiceProviders
         /// Parse the class properties from the attributes inside the UXML
         /// </summary>
         /// <param name="properties"></param>
-        public async Task<IEnumerable<string>> ParseClassProperties(string properties)
+        public IEnumerable<string> ParseClassProperties(string properties)
         {
             var parsedProperties = "";
             var styleSheet = "";
 
-            var dynamicProperties = await ParseDynamicProperties(properties);
+            var dynamicProperties = ParseDynamicProperties(properties);
             parsedProperties += dynamicProperties.Key;
             styleSheet += dynamicProperties.Value;
             
-            var dynamicColors = await ParseDynamicColors(properties);
+            var dynamicColors = ParseDynamicColors(properties);
             parsedProperties += dynamicColors.Key;
             styleSheet += dynamicColors.Value;
             
@@ -89,7 +89,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
             return parsedProperties.Trim().Split(" ");
         }
 
-        internal async Task<KeyValuePair<string, string>> ParseDynamicProperties(string properties)
+        internal KeyValuePair<string, string> ParseDynamicProperties(string properties)
         {
             var matches = Regex.Matches(properties, @".+?-\[(.*?)\]");
             if (matches.Count <= 0)
@@ -139,7 +139,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
             return new KeyValuePair<string, string>(parsedProperties.Trim(), styleSheet.Trim());
         }
 
-        internal async Task<KeyValuePair<string, string>> ParseDynamicColors(string properties)
+        internal KeyValuePair<string, string> ParseDynamicColors(string properties)
         {
             var parsedProperties = "";
             var styleSheet = "";
@@ -162,8 +162,6 @@ namespace HeadWindCSS.Domains.ServiceProviders
 
                     foreach (Match match in matches)
                     {
-                        Debug.Log("match: " + match.Value);
-                        
                         string matchPrefix = match.Value.Substring(0, match.Value.IndexOf("-", StringComparison.Ordinal));
                         var prefixKey = $"{matchPrefix}-".Trim();
                         
@@ -184,7 +182,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
                             // #fff
                             // .text-primary {background-color: #fff;}   
                             var styleSheetPropValue =
-                                "." + colors.Key + "{" + prefixValue + ": " + colors.Value.Value + ";} "; 
+                                "." + prop + "{" + prefixValue + ": " + colors.Value.Value.ToRGBHex() + ";} "; 
                             styleSheet += styleSheetPropValue;
                             parsedProperties += prop + " ";
                             
@@ -208,7 +206,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
                                 // #fff
                                 // .text-primary-500 {background-color: #fff;}
                                 var styleSheetPropValue = "." + match.Value + "{" + prefixValue + ": " +
-                                                          themeSettingValue + ";} "; 
+                                                          themeSettingValue.ToRGBHex() + ";} "; 
                                 styleSheet += styleSheetPropValue;
                                 parsedProperties += match.Value;
                                 
