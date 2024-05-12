@@ -63,7 +63,8 @@ namespace HeadWindCSS.Tests.Editor.EditMode
         [Test]
         public void ParseDynamicColors()
         {
-            var pair = _uxmlHelper.Object.ParseDynamicColors("bg-primary text-secondary text-example-900");
+            /** bg-primary text-secondary text-example-900  */
+            var pair = _uxmlHelper.Object.ParseDynamicColors("hover:bg-primary");
 
             // Test the class names
             Assert.AreEqual("bg-primary text-secondary text-example-900", pair.Key);

@@ -66,6 +66,20 @@ namespace HeadWindCSS.Domains.ServiceProviders
         {
             return HeadWindCssSettings.Load();
         }
+        
+        public async Task<KeyValuePair<List<string>, List<string>>> NewParseClassProperties(string properties)
+        {
+            return await Task.Run(() =>
+            {
+                var dynamicProperties = ParseDynamicProperties(properties);
+                var dynamicColors = ParseDynamicColors(properties);
+                var parsedProperties = dynamicProperties.Key.Concat(dynamicColors.Key);
+                var styleSheet = dynamicProperties.Value.Concat(dynamicColors.Value);
+
+                return new KeyValuePair<List<string>, List<string>>(parsedProperties.ToList(), styleSheet.ToList());
+            });
+        }
+        
 
         /// <summary>
         /// Parse the class properties from the attributes inside the UXML
@@ -73,76 +87,102 @@ namespace HeadWindCSS.Domains.ServiceProviders
         /// <param name="properties"></param>
         public IEnumerable<string> ParseClassProperties(string properties)
         {
-            var parsedProperties = "";
-            var styleSheet = "";
-
-            var dynamicProperties = ParseDynamicProperties(properties);
-            parsedProperties += dynamicProperties.Key;
-            styleSheet += dynamicProperties.Value;
-            
+            var dynamicProperties = ConvertUxmlDynamicClassProperties(properties);
             var dynamicColors = ParseDynamicColors(properties);
-            parsedProperties += dynamicColors.Key;
-            styleSheet += dynamicColors.Value;
-            
-            Debug.Log($"parsedProperties: {parsedProperties}, styleSheet: {styleSheet}");
+            var parsedProperties = dynamicProperties.Concat(dynamicColors.Key);
 
-            return parsedProperties.Trim().Split(" ");
+            return parsedProperties;
         }
 
-        internal KeyValuePair<string, string> ParseDynamicProperties(string properties)
+        private IEnumerable<string> ConvertUxmlDynamicClassProperties(string properties)
         {
+            List<string> parsedProperties = new List<string>();
+            
             var matches = Regex.Matches(properties, @".+?-\[(.*?)\]");
+            
             if (matches.Count <= 0)
             {
-                return new KeyValuePair<string, string>();
+                return parsedProperties;
             }
-            
-            string parsedProperties = "";
-            string styleSheet = "";
+
             foreach (Match match in matches)
             {
                 // Get prefix and value
-                string matchPrefix = match.Value.Substring(0, match.Value.IndexOf("-", StringComparison.Ordinal));
-                string matchPropValue = match.Value.Substring(match.Value.IndexOf("-", StringComparison.Ordinal) + 1);
-
+                var matchPrefix = match.Value.Substring(0, match.Value.IndexOf("-", StringComparison.Ordinal));
+                var matchPropValue = match.Value.Substring(match.Value.IndexOf("-", StringComparison.Ordinal) + 1);
                 var prefixKey = $"{matchPrefix}-".Trim();
-
-                if (!_prefixes.TryGetValue(prefixKey, out var prefixValue)) continue;
                 
                 // bg-
                 // #fff
                 // .bg-_fff_ {background-color: #fff;}
                 var propValue = matchPropValue.Replace("[", string.Empty).Replace("]", string.Empty);
                 var withoutHash = propValue.Replace("#", string.Empty);
-                var propPrefixAndValue = prefixKey + "_" + withoutHash + "_ ";
+                var propPrefixAndValue = prefixKey + "_" + withoutHash + "_";
 
-                var styleSheetPropValue = "." + prefixKey + "_" + withoutHash + "_ {" + prefixValue + ": " + propValue +
-                                          ";} ";
-                styleSheet += styleSheetPropValue;
-                parsedProperties += propPrefixAndValue;
-                
-                _headWindCssSettings.AddDynamicValue(propPrefixAndValue, styleSheetPropValue);
-
-                /*foreach (var prefix in _prefixes)
+                // if the dynamic property is found in the settings already just return the value
+                if (!_headWindCssSettings.DynamicProperties.ContainsKey(propPrefixAndValue))
                 {
-                    foreach (var prop in props)
-                    {
-                        if (!prop.Contains($"{prefix.Key}[")) continue;
-
-                        Debug.Log($"prop: {prop}");
-
-
-                    }
-                }*/
+                    continue;
+                }
+                
+                parsedProperties.Add(propPrefixAndValue);
             }
 
-            return new KeyValuePair<string, string>(parsedProperties.Trim(), styleSheet.Trim());
+            return parsedProperties;
         }
 
-        internal KeyValuePair<string, string> ParseDynamicColors(string properties)
+        /// <summary>
+        /// Parse dynamic properties to a list of properties and a stylesheet
+        /// </summary>
+        /// <param name="properties"></param>
+        /// <returns></returns>
+        private KeyValuePair<List<string>, List<string>> ParseDynamicProperties(string properties)
         {
-            var parsedProperties = "";
-            var styleSheet = "";
+            List<string> parsedProperties = new List<string>();
+            List<string> styleSheet = new List<string>();
+
+            var matches = Regex.Matches(properties, @".+?-\[(.*?)\]");
+            
+            if (matches.Count <= 0)
+            {
+                return new KeyValuePair<List<string>, List<string>>(parsedProperties, styleSheet);
+            }
+            
+            foreach (Match match in matches)
+            {
+                // Get prefix and value
+                var matchPrefix = match.Value.Substring(0, match.Value.IndexOf("-", StringComparison.Ordinal));
+                var matchPropValue = match.Value.Substring(match.Value.IndexOf("-", StringComparison.Ordinal) + 1);
+                var prefixKey = $"{matchPrefix}-".Trim();
+
+                // bg-
+                // #fff
+                // .bg-_fff_ {background-color: #fff;}
+                var propValue = matchPropValue.Replace("[", string.Empty).Replace("]", string.Empty);
+                var withoutHash = propValue.Replace("#", string.Empty);
+                var propPrefixAndValue = prefixKey + "_" + withoutHash + "_";
+
+                if (!_prefixes.TryGetValue(prefixKey, out var prefixValue)) continue;
+
+                var styleSheetPropValue = "." + prefixKey + "_" + withoutHash + "_ {" + prefixValue + ": " + propValue +
+                                          ";}";
+                parsedProperties.Add(propPrefixAndValue);
+                styleSheet.Add(styleSheetPropValue);
+            }
+
+            return new KeyValuePair<List<string>, List<string>>(parsedProperties, styleSheet);
+        }
+
+        /// <summary>
+        /// Parse dynamic colors to a list of properties and a stylesheet
+        /// </summary>
+        /// <param name="properties"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        internal KeyValuePair<List<string>, List<string>> ParseDynamicColors(string properties)
+        {
+            var parsedProperties = new List<string>();
+            var styleSheet = new List<string>();
             
             // See if matching suffix matches the theme settings
             if(_headWindCssSettings.Theme.TryGetValue("colors", out var themeColors))
@@ -150,7 +190,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
                 foreach (var colors in themeColors)
                 {
                     // for example text-primary-500
-                    var regexCheck = $"(\\w+)-{colors.Key}-?(\\w+)?"; // $"(.*-{pair.Key}.*)";
+                    var regexCheck = $"(\\w+):?(\\w+)-{colors.Key}-?(\\w+)?"; // $"(.*-{pair.Key}.*)";
                     var matches = Regex.Matches(properties, regexCheck);
                     
                     if (matches.Count <= 0)
@@ -162,8 +202,20 @@ namespace HeadWindCSS.Domains.ServiceProviders
 
                     foreach (Match match in matches)
                     {
-                        string matchPrefix = match.Value.Substring(0, match.Value.IndexOf("-", StringComparison.Ordinal));
+                        var pseudo = HasPseudoClass(match.Value) ? String.Copy(match.Value).Substring(0, match.Value.IndexOf(":", StringComparison.Ordinal)) : "";
+                        Debug.Log("Psuedo: " + pseudo);
+
+                        var index = HasPseudoClass(match.Value)
+                        ? match.Value.IndexOf(":", StringComparison.Ordinal)
+                        : 0;
+                        
+                        Debug.Log("length: " + match.Value.Length);
+                        Debug.Log("index: " + match.Value.IndexOf(":", StringComparison.Ordinal);
+                        
+                        string matchPrefix = match.Value.Substring(index,match.Value.IndexOf("-", StringComparison.Ordinal));
                         var prefixKey = $"{matchPrefix}-".Trim();
+                        
+                        Debug.Log("prefix: " + matchPrefix);
                         
                         // The prefix value is the property name in css such color: 
                         if (!_prefixes.TryGetValue(prefixKey, out var prefixValue)) continue;
@@ -176,18 +228,17 @@ namespace HeadWindCSS.Domains.ServiceProviders
                         if (count == 1 && themeSetting.Type == ThemeSettingType.Value)
                         {
                             // text-
-                            var prop = prefixKey + colors.Key;
+                            var prop = pseudo + prefixKey + colors.Key;
+                            
+                            Debug.Log(prop);
                             
                             // bg-
                             // #fff
                             // .text-primary {background-color: #fff;}   
                             var styleSheetPropValue =
-                                "." + prop + "{" + prefixValue + ": " + colors.Value.Value.ToRGBHex() + ";} "; 
-                            styleSheet += styleSheetPropValue;
-                            parsedProperties += prop + " ";
-                            
-                            _headWindCssSettings.AddDynamicValue(prop, styleSheetPropValue);
-
+                                "." + prop + "{" + prefixValue + ": " + colors.Value.Value.ToRGBHex() + ";}"; 
+                            styleSheet.Add(styleSheetPropValue);
+                            parsedProperties.Add(prop);
                         }
                         else if (count == 2 && themeSetting.Type == ThemeSettingType.Object)
                         {
@@ -198,19 +249,17 @@ namespace HeadWindCSS.Domains.ServiceProviders
                                 themeSettingObject.Value.TryGetValue(matchSuffix, out var themeSettingValue))
                             {
                                 // text-primary-500
-                                var propValue =
-                                    match.Value.Substring(match.Value.IndexOf("-", StringComparison.Ordinal) + 1);
-                                var propPrefixAndValue = prefixKey + propValue + " ";
+                                // var propValue =
+                                //     match.Value.Substring(match.Value.IndexOf("-", StringComparison.Ordinal) + 1);
+                                // var propPrefixAndValue = prefixKey + propValue + " ";
 
                                 // text-primary-500
                                 // #fff
                                 // .text-primary-500 {background-color: #fff;}
                                 var styleSheetPropValue = "." + match.Value + "{" + prefixValue + ": " +
-                                                          themeSettingValue.ToRGBHex() + ";} "; 
-                                styleSheet += styleSheetPropValue;
-                                parsedProperties += match.Value;
-                                
-                                _headWindCssSettings.AddDynamicValue(match.Value, styleSheetPropValue);
+                                                          themeSettingValue.ToRGBHex() + ";}"; 
+                                styleSheet.Add(styleSheetPropValue);
+                                parsedProperties.Add(match.Value);
                             }
                             else 
                             {
@@ -221,14 +270,23 @@ namespace HeadWindCSS.Domains.ServiceProviders
                         }
                         else
                         {
-                            Debug.Log("theme settings type: " + nameof(themeSetting.Type));
-                            throw new ArgumentException("Invalid type or class not found.", nameof(themeSetting.Type));
+                            throw new ArgumentException("Invalid type or class not found for key", themeSetting.Key);
                         }
                     }
                 }
             }
             
-            return new KeyValuePair<string, string>(parsedProperties.Trim(), styleSheet.Trim());
+            return new KeyValuePair<List<string>, List<string>>(parsedProperties, styleSheet);
+        }
+        
+        private bool HasPseudoClass(string property)
+        {
+            return property.Contains(":");
+        }
+        
+        private string ConvertClassToDynamicProperty()
+        {
+            return "";
         }
     }
 }

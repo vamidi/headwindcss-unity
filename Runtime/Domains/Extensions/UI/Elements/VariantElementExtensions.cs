@@ -100,11 +100,15 @@ namespace HeadWindCSS.Domains.Extensions.UI.Elements
             }
         }
 
+        /**
+         * TODO Grab dynamic values from the cached settings
+         */
         private static void AssignDynamicProperties(VisualElement ve, string properties)
         {
             var uxmlHelper = ServiceLocator.Current.Get<UxmlHelper>();
                 
             var dynamicProperties = uxmlHelper.ParseClassProperties(properties);
+            
             foreach (var prop in dynamicProperties)
             {
                 ve.AddToClassList(prop);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HeadWindCSS.Domains.Extensions.UI.Elements;
 using UnityEngine;
 
@@ -97,5 +98,9 @@ namespace HeadWindCSS.Domains.Settings.ScriptableObjects
             _dirty = true;
         }
         
+        internal SerializableDictionary<string, ThemeSetting> GetThemeSetting(string themeKey)
+        {
+            return theme.GetValueOrDefault(themeKey);
+        }
     }
 }

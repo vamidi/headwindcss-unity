@@ -1917,6 +1917,19 @@
     flex-direction: column-reverse;
 }
 
+/** Align items */
+.items-start {
+    align-items: flex-start;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.items-end {
+    align-items: flex-end;
+}
+
 
 /* TODO */
 /*flex-1	flex: 1 1 0%;*/

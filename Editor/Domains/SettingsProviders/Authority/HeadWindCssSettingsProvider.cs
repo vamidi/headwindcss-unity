@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HeadWindCSS.Domains.ServiceProviders;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -154,16 +158,10 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
                                    "it will be automatically included into any builds.";
             EditorGUILayout.HelpBox(message, MessageType.Info, wide: true);
             
-            if (GUILayout.Button("Paese dynamic values"))
+            if (GUILayout.Button("Parse dynamic values"))
             {
-                var stylesheet = "";
-
-                foreach (var dynamicProperty in CurrentSettings.DynamicProperties)
-                {
-                    stylesheet += dynamicProperty.Value + System.Environment.NewLine;
-                }
-                
-                SaveParsedProperties(stylesheet);
+                // find all uxml documents
+                GrabPropertiesFromUxml(ResourceHelper.GetAssetsOfExtension("uxml"));
             }
         }
         
@@ -181,6 +179,50 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
         private bool DynamicUSSExists()
         {
             return File.Exists(SettingsHelper.USSPath);
+        }
+
+        private async void GrabPropertiesFromUxml(string[] files)
+        {
+            if(files.Length == 0) return;
+
+            List<string> allProperties = new();
+            foreach (var file in files)
+            {
+                var text = await File.ReadAllTextAsync(file);
+                
+                // Get all class properties
+                var classRegexCheck = "class=\"([^\"]+)\"";
+                var matches = Regex.Matches(text, classRegexCheck);
+                
+                if(matches.Count == 0) continue;
+                
+                foreach (Match match in matches)
+                {
+                    var properties = match.Value.Substring(match.Value.IndexOf("=", StringComparison.Ordinal) + 1).Replace("\"", "");
+                    var parsedProperties = await ServiceLocator.Current.Get<UxmlHelper>().NewParseClassProperties(properties);
+                    
+                    for (var i = 0; i < parsedProperties.Key.Count; i++)
+                    {
+                        var propPrefixAndValue = parsedProperties.Key[i];
+                        var styleSheetPropValue = parsedProperties.Value[i];
+                        
+                        // Add properties to the settings
+                        Debug.Log($"propPrefixAndValue: {propPrefixAndValue}, styleSheetPropValue: {styleSheetPropValue}");
+                        CurrentSettings.AddDynamicValue(propPrefixAndValue.Trim(), styleSheetPropValue.Trim());
+                    }
+                }
+            }
+            
+            // TODO Grab the properties from the settings that are defined in the theme
+            
+            // Save the parsed properties to the dynamic stylesheet 
+            var stylesheet = "";
+            foreach (var dynamicProperty in CurrentSettings.DynamicProperties)
+            {
+                stylesheet += dynamicProperty.Value + Environment.NewLine;
+            }
+                
+            await SaveParsedProperties(stylesheet);
         }
         
         /// <summary>

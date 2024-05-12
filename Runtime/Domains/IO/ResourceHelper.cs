@@ -152,6 +152,12 @@ namespace HeadWindCSS.Domains.IO
 		// {
 			// return Addressables.LoadAssetsAsync<T>(locations);
 		// }
+		
+		public static string[] GetAssetsOfExtension(string extension)
+		{
+			return Directory.GetFiles(Application.dataPath, $"*.{extension}", SearchOption.AllDirectories)
+				.ToArray();
+		}
 
 		private static AddressableAssetSettings GetAddressableSettings()
 		{
