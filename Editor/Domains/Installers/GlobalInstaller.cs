@@ -23,10 +23,10 @@ namespace HeadWindCSS.Editor.Domains.Installers
 
         }
 
-        [DidReloadScripts]
-        static void OnScriptReloaded()
-        {
-            Debug.Log("Reloading scripts");
-        }
+        // [DidReloadScripts]
+        // static void OnScriptReloaded()
+        // {
+        //     Debug.Log("Reloading scripts");
+        // }
     }
 }

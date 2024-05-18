@@ -203,19 +203,19 @@ namespace HeadWindCSS.Domains.ServiceProviders
                     foreach (Match match in matches)
                     {
                         var pseudo = HasPseudoClass(match.Value) ? String.Copy(match.Value).Substring(0, match.Value.IndexOf(":", StringComparison.Ordinal)) : "";
-                        Debug.Log("Psuedo: " + pseudo);
+                        // Debug.Log("Psuedo: " + pseudo);
 
                         var index = HasPseudoClass(match.Value)
                         ? match.Value.IndexOf(":", StringComparison.Ordinal)
                         : 0;
                         
-                        Debug.Log("length: " + match.Value.Length);
-                        Debug.Log("index: " + match.Value.IndexOf(":", StringComparison.Ordinal);
+                        // Debug.Log("length: " + match.Value.Length);
+                        // Debug.Log("index: " + match.Value.IndexOf(":", StringComparison.Ordinal));
                         
                         string matchPrefix = match.Value.Substring(index,match.Value.IndexOf("-", StringComparison.Ordinal));
                         var prefixKey = $"{matchPrefix}-".Trim();
                         
-                        Debug.Log("prefix: " + matchPrefix);
+                        // Debug.Log("prefix: " + matchPrefix);
                         
                         // The prefix value is the property name in css such color: 
                         if (!_prefixes.TryGetValue(prefixKey, out var prefixValue)) continue;
@@ -230,7 +230,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
                             // text-
                             var prop = pseudo + prefixKey + colors.Key;
                             
-                            Debug.Log(prop);
+                            // Debug.Log(prop);
                             
                             // bg-
                             // #fff
