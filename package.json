@@ -2,6 +2,7 @@
   "name": "com.vamidicreations.headwindcss",
   "version": "0.0.1-preview",
   "displayName": "HeadwindCSS",
+  "description": "HeadwindCSS is a Unity package that allows you to use utility classes in your Unity projects.",
   "documentationUrl": "https://docs.vamidicreations.nl/",
   "changelogUrl": "https://example.com/changelog.html",
   "licensesUrl": "https://example.com/licensing.html",
