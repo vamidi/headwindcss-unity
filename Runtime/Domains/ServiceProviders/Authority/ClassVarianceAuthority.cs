@@ -63,18 +63,13 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
     public class ClassVarianceAuthority : IService
     {
         private HeadWindCssSettings _headWindCssSettings;
-        
-        public ClassVarianceAuthority()
-        {
-            Initialize();
-        }
 
-        protected void Initialize()
+        public void Initialize()
         {
             _headWindCssSettings = GetHeadWindCssSettings();
         }
         
-        internal virtual HeadWindCssSettings GetHeadWindCssSettings()
+        internal HeadWindCssSettings GetHeadWindCssSettings()
         {
             return HeadWindCssSettings.Load();
         }

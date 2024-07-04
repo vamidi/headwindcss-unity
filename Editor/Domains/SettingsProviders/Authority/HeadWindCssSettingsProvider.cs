@@ -158,10 +158,24 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
                                    "it will be automatically included into any builds.";
             EditorGUILayout.HelpBox(message, MessageType.Info, wide: true);
             
-            if (GUILayout.Button("Parse dynamic values"))
+            if (GUILayout.Button("Parse dynamic values from XML"))
             {
                 // find all uxml documents
-                GrabPropertiesFromUxml(ResourceHelper.GetAssetsOfExtension("uxml"));
+                var awaiter = GrabPropertiesFromUxml(ResourceHelper.GetAssetsOfExtension("uxml")).GetAwaiter();
+                awaiter.OnCompleted(() =>
+                {
+                    var dynamicUSS = ResourceHelper.GetAsset<StyleSheet>(SettingsHelper.USSPath, true);
+
+                    if (dynamicUSS)
+                    {
+                        EditorUtility.SetDirty(dynamicUSS);
+                        AssetDatabase.SaveAssets();
+                        
+                        EditorUtility.DisplayDialog("Dynamic Properties Parsed",
+                            "The dynamic properties have been parsed and saved to the dynamic stylesheet.",
+                            "Ok");
+                    }                    
+                });
             }
         }
         
@@ -181,7 +195,7 @@ namespace HeadWindCSS.Editor.Domains.SettingsProviders.Authority
             return File.Exists(SettingsHelper.USSPath);
         }
 
-        private async void GrabPropertiesFromUxml(string[] files)
+        private async Task GrabPropertiesFromUxml(string[] files)
         {
             if(files.Length == 0) return;
 

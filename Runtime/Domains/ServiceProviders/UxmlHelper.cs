@@ -7,7 +7,6 @@ using HeadWindCSS.Domains.Extensions.UI.Elements;
 using HeadWindCSS.Domains.Serialization;
 using HeadWindCSS.Domains.Settings.ScriptableObjects;
 using HeadWindCSS.Domains.Settings.Theme;
-using UnityEngine;
 
 namespace HeadWindCSS.Domains.ServiceProviders
 {
@@ -51,13 +50,8 @@ namespace HeadWindCSS.Domains.ServiceProviders
             { "border-b-", "border-bottom-width" },
             { "border-l-", "border-left-width" }
         };
-
-        public UxmlHelper()
-        {
-            Initialize();
-        }
         
-        protected void Initialize()
+        public void Initialize()
         {
             _headWindCssSettings = GetHeadWindCssSettings();
         }
@@ -120,7 +114,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
                 var propPrefixAndValue = prefixKey + "_" + withoutHash + "_";
 
                 // if the dynamic property is found in the settings already just return the value
-                if (!_headWindCssSettings.DynamicProperties.ContainsKey(propPrefixAndValue))
+                if (_headWindCssSettings.DynamicProperties.ContainsKey(propPrefixAndValue))
                 {
                     continue;
                 }

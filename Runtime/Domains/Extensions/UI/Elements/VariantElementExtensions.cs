@@ -1,5 +1,6 @@
+using System;
 using System.Collections.Generic;
-using UnityEngine;
+
 using UnityEngine.UIElements;
 
 namespace HeadWindCSS.Domains.Extensions.UI.Elements
@@ -24,6 +25,20 @@ namespace HeadWindCSS.Domains.Extensions.UI.Elements
         // {
         //     return VariantAttr.GetValueFromBag(bag, cc);
         // }
+
+        public static void SetupHeadWindCss(this VisualElement ve)
+        {
+#if UNITY_EDITOR
+            // Load styles from the editor resources
+            // Failed to load UI Styles at path Packages/com.vamidicreations.headwindcss/Runtime/Domains/UI/Styles/headwindcss.uss
+            var stylesheet = UIResourceHelper.GetStyleAsset(HeadWindCss);
+#else
+                // Load styles from the runtime resources
+                var stylesheet = UIResourceHelper.GetStyleAsset("headwindcss");
+#endif
+            // Unity is already tracking if USS has been added to the styleSheets
+            ve.styleSheets.Add(stylesheet);
+        }
         
         public static void SetupVariant(
             this VisualElement ve, 
@@ -44,24 +59,16 @@ namespace HeadWindCSS.Domains.Extensions.UI.Elements
 //             {
 //                 ve.styleSheets.Remove(dynamicStyleSheet);
 //             }
-            
-#if UNITY_EDITOR
-            // Load styles from the editor resources
-            // Failed to load UI Styles at path Packages/com.vamidicreations.headwindcss/Runtime/Domains/UI/Styles/headwindcss.uss
-            var stylesheet = UIResourceHelper.GetStyleAsset(HeadWindCss);
-#else
-                // Load styles from the runtime resources
-                var stylesheet = UIResourceHelper.GetStyleAsset("headwindcss");
-#endif
-            // Unity is already tracking if USS has been added to the styleSheets
-            ve.styleSheets.Add(stylesheet);
+
+            // Load the static style
+            ve.SetupHeadWindCss();
 
             foreach (var attribute in attributes)
             {
                 ve.AddVariantClasses(typeVariant, attribute, bag, cc);
             }
             
-            AssignDynamicProperties(ve, ClassAttr.GetValueFromBag(bag, cc));
+            ve.AssignDynamicProperties( ClassAttr.GetValueFromBag(bag, cc));
 #if UNITY_EDITOR
             // Load styles from the editor resources
             // Failed to load UI Styles at path Packages/com.vamidicreations.headwindcss/Runtime/Domains/UI/Styles/headwindcss.uss
@@ -78,6 +85,23 @@ namespace HeadWindCSS.Domains.Extensions.UI.Elements
             
             // re-add the dynamic style
             ve.styleSheets.Add(dynamicStyleSheet);
+        }
+        
+        /**
+         * TODO Grab dynamic values from the cached settings
+         */
+        public static T AssignDynamicProperties<T>(this T ve, string properties) 
+            where T : VisualElement
+        {
+            var uxmlHelper = ServiceLocator.Current.Get<UxmlHelper>();
+            var dynamicProperties = uxmlHelper.ParseClassProperties(properties);
+            
+            foreach (var prop in dynamicProperties)
+            {
+                ve.AddToClassList(prop);
+            }
+
+            return ve;
         }
         
         private  static void AddVariantClasses(
@@ -97,21 +121,6 @@ namespace HeadWindCSS.Domains.Extensions.UI.Elements
             foreach (var c in classes)
             {
                 ve.AddToClassList(c);
-            }
-        }
-
-        /**
-         * TODO Grab dynamic values from the cached settings
-         */
-        private static void AssignDynamicProperties(VisualElement ve, string properties)
-        {
-            var uxmlHelper = ServiceLocator.Current.Get<UxmlHelper>();
-                
-            var dynamicProperties = uxmlHelper.ParseClassProperties(properties);
-            
-            foreach (var prop in dynamicProperties)
-            {
-                ve.AddToClassList(prop);
             }
         }
     }

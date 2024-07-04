@@ -10,6 +10,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
     /// </summary> 
     public interface IService
     {
+        public void Initialize();
     }
     
     /// <summary>
@@ -22,7 +23,7 @@ namespace HeadWindCSS.Domains.ServiceProviders
         /// <summary>
         /// currently registered services.
         /// </summary>
-        private readonly Dictionary<string, IService> services = new Dictionary<string, IService>();
+        private readonly Dictionary<string, IService> _services = new ();
 
         /// <summary>
         /// Gets the currently active service locator instance.
@@ -45,13 +46,13 @@ namespace HeadWindCSS.Domains.ServiceProviders
         public T Get<T>() where T : IService
         {
             string key = typeof(T).Name;
-            if (!services.ContainsKey(key))
+            if (!_services.ContainsKey(key))
             {
                 Debug.LogError($"{key} not registered with {GetType().Name}");
                 throw new InvalidOperationException();
             }
 
-            return (T)services[key];
+            return (T)_services[key];
         }
 
         /// <summary>
@@ -62,13 +63,13 @@ namespace HeadWindCSS.Domains.ServiceProviders
         public void Register<T>(T service) where T : IService
         {
             string key = typeof(T).Name;
-            if (services.ContainsKey(key))
+            if (!_services.TryAdd(key, service))
             {
                 Debug.LogError($"Attempted to register service of type {key} which is already registered with the {GetType().Name}.");
                 return;
             }
-
-            services.Add(key, service);
+            
+            service.Initialize();
         }
 
         /// <summary>
@@ -78,13 +79,13 @@ namespace HeadWindCSS.Domains.ServiceProviders
         public void Unregister<T>() where T : IService
         {
             string key = typeof(T).Name;
-            if (!services.ContainsKey(key))
+            if (!_services.ContainsKey(key))
             {
                 Debug.LogError($"Attempted to unregister service of type {key} which is not registered with the {GetType().Name}.");
                 return;
             }
 
-            services.Remove(key);
+            _services.Remove(key);
         }
     }
 }
