@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
-using HeadWindCSS.Domains.Serialization;
-using HeadWindCSS.Domains.Settings.ScriptableObjects;
-using UnityEngine;
+
+using UnityEngine.Assertions;
 
 namespace HeadWindCSS.Domains.ServiceProviders.Authority
 {
+    using Serialization;
+    using Settings.ScriptableObjects;
+
     using Variant = String;
     using VariantConfig = ClassVariant;
     /**
@@ -69,7 +71,7 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
             _headWindCssSettings = GetHeadWindCssSettings();
         }
         
-        internal HeadWindCssSettings GetHeadWindCssSettings()
+        internal virtual HeadWindCssSettings GetHeadWindCssSettings()
         {
             return HeadWindCssSettings.Load();
         }
@@ -131,6 +133,8 @@ namespace HeadWindCSS.Domains.ServiceProviders.Authority
         /// </summary>
         public void Cva(Variant variant, VariantConfig config)
         {
+            Assert.IsNotNull(_headWindCssSettings, "Settings is null, did you forget to call Initialize?");
+            
             if(!_headWindCssSettings.Variants.TryAdd(variant, config))
             {
                 throw new Exception("Variant already exists");
