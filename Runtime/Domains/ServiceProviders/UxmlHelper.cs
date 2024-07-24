@@ -1,15 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using HeadWindCSS.Domains.Extensions.UI.Elements;
-using HeadWindCSS.Domains.Serialization;
-using HeadWindCSS.Domains.Settings.ScriptableObjects;
-using HeadWindCSS.Domains.Settings.Theme;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace HeadWindCSS.Domains.ServiceProviders
 {
+    using Serialization;
+    using Settings.Theme;
+    using Settings.ScriptableObjects;
+    using HeadWindCSS.Domains.Extensions.UI.Elements;
+    
     public class UxmlHelper : IService
     {
         private HeadWindCssSettings _headWindCssSettings;
@@ -196,20 +197,23 @@ namespace HeadWindCSS.Domains.ServiceProviders
 
                     foreach (Match match in matches)
                     {
-                        var pseudo = HasPseudoClass(match.Value) ? String.Copy(match.Value).Substring(0, match.Value.IndexOf(":", StringComparison.Ordinal)) : "";
-                        // Debug.Log("Psuedo: " + pseudo);
+                        var pseudo = HasPseudoClass(match.Value) ? String.Copy(match.Value).Substring(0, match.Value.IndexOf(":", StringComparison.Ordinal) + 1) : "";
 
                         var index = HasPseudoClass(match.Value)
-                        ? match.Value.IndexOf(":", StringComparison.Ordinal)
+                        ? match.Value.IndexOf(":", StringComparison.Ordinal) + 1 // 1 is for the colon
                         : 0;
                         
-                        // Debug.Log("length: " + match.Value.Length);
-                        // Debug.Log("index: " + match.Value.IndexOf(":", StringComparison.Ordinal));
+                        var length = HasPseudoClass(match.Value)
+                            ? match.Value.IndexOf("-", StringComparison.Ordinal) - index
+                            : match.Value.IndexOf(":", StringComparison.Ordinal);
                         
-                        string matchPrefix = match.Value.Substring(index,match.Value.IndexOf("-", StringComparison.Ordinal));
+                        if(length == -1)
+                        {
+                            length = match.Value.IndexOf("-", StringComparison.Ordinal);
+                        }
+                        
+                        string matchPrefix = match.Value.Substring(index, length);
                         var prefixKey = $"{matchPrefix}-".Trim();
-                        
-                        // Debug.Log("prefix: " + matchPrefix);
                         
                         // The prefix value is the property name in css such color: 
                         if (!_prefixes.TryGetValue(prefixKey, out var prefixValue)) continue;
@@ -223,8 +227,6 @@ namespace HeadWindCSS.Domains.ServiceProviders
                         {
                             // text-
                             var prop = pseudo + prefixKey + colors.Key;
-                            
-                            // Debug.Log(prop);
                             
                             // bg-
                             // #fff
@@ -276,11 +278,6 @@ namespace HeadWindCSS.Domains.ServiceProviders
         private bool HasPseudoClass(string property)
         {
             return property.Contains(":");
-        }
-        
-        private string ConvertClassToDynamicProperty()
-        {
-            return "";
         }
     }
 }

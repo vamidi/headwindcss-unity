@@ -86,8 +86,6 @@ namespace HeadWindCSS.Tests.Editor.EditMode
                 valueVariant: "md"
             );
             
-            Debug.Log(properties);
-            
             Assert.AreEqual("font-bold rounded-lg h-10", properties);
         }
 

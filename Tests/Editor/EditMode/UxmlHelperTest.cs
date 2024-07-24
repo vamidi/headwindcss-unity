@@ -19,6 +19,7 @@ namespace HeadWindCSS.Tests.Editor.EditMode
         public void Setup()
         {
             var headWindCssSettings = ScriptableObject.CreateInstance<HeadWindCssSettings>(); 
+
             if(headWindCssSettings.Theme.TryGetValue("colors", out var colorTheme))
             {
                 colorTheme.Add("example", new ThemeSettingObject(
@@ -33,6 +34,7 @@ namespace HeadWindCSS.Tests.Editor.EditMode
             
             _classVarianceAuthority = new Mock<ClassVarianceAuthority>();
             _classVarianceAuthority.Setup(x => x.GetHeadWindCssSettings()).Returns(headWindCssSettings);
+            _classVarianceAuthority.Object.Initialize();
             _classVarianceAuthority.Object.Cva(
                 // Example for Buttons
                 ClassVarianceAuthorityTest.ButtonVariant, new ClassVariant {
@@ -54,26 +56,32 @@ namespace HeadWindCSS.Tests.Editor.EditMode
                         }
                     }
                 }
-            });
+            }
+            );
             
             _uxmlHelper = new Mock<UxmlHelper>();
             _uxmlHelper.Setup(x => x.GetHeadWindCssSettings()).Returns(headWindCssSettings);
+            _uxmlHelper.Object.Initialize();
         }
 
         [Test]
         public void ParseDynamicColors()
         {
-            /** bg-primary text-secondary text-example-900  */
-            var pair = _uxmlHelper.Object.ParseDynamicColors("hover:bg-primary");
+            var pair = _uxmlHelper.Object.ParseDynamicColors("bg-primary text-secondary text-example-900");
 
+            // There should be 3 classes
+            Assert.AreEqual(pair.Key.Count, 3);
+            
             // Test the class names
-            Assert.AreEqual("bg-primary text-secondary text-example-900", pair.Key);
+            Assert.AreEqual(pair.Key[0], "bg-primary");
+            Assert.AreEqual(pair.Key[1], "text-secondary");
+            Assert.AreEqual(pair.Key[2], "text-example-900");
 
             // Test the actual stylesheet
-            Assert.AreEqual(
-                ".bg-primary{background-color: #181C52;} .text-secondary{color: #0756F1;} .text-example-900{color: #181C52;}", 
-                pair.Value
-            );
+            Assert.AreEqual(pair.Value.Count, 3);
+            Assert.AreEqual(pair.Value[0], ".bg-primary{background-color: #181C52;}");
+            Assert.AreEqual(pair.Value[1], ".text-secondary{color: #0756F1;}");
+            Assert.AreEqual(pair.Value[2], ".text-example-900{color: #181C52;}");
         }
     }
 }
